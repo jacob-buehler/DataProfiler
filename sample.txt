@@ -1,0 +1,1 @@
+There are significant performance advantages to pola.rs as compared with pandas. pola.rs is ~10-40 times faster, depending on the function
