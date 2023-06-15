@@ -1,1 +1,78 @@
-There are significant performance advantages to pola.rs as compared with pandas. pola.rs is ~10-40 times faster, depending on the function
+SPEED SUMMARY
+- Shahiryar Saleem ran tests to benchmark the speed of Polars vs. Pandas. He created a large library of 10 million observations of 2 features (numbers set randomly).
+- Summing these observations, he found that Pandas took ~472 ms, while Polars took ~14 ms. Thus, Polars ran this test 34x faster than Pandas.
+- Note: the summing functions were explicitly Pandas and polars functions, respectively, using [dataframe].sum() using either a Pandas or Polars dataframe.
+
+- Applying a sigmoid function, Saleem found that Pandas took 77 seconds, while Polars took 7.8 seconds. Thus, Polars ran 10x faster than Pandas.
+- Note: the sigmoid function was a non-Pandas/non-Polars function that was independently run upon Pandas and Polars dataframes,
+  showing that other libraries also process Polars dataframes faster.
+
+- Leonie Monigatti also ran tests to benchmark speeds of Polars vs. Pandas. She used a dataset with 11 columns and 4,000,000 rows, with a size of almost 1GB.
+- Reading the data took 10.6s with Pandas, and 1.41s with Polars. Thus, Polars ran 8x faster than Pandas
+- Selecting data, based on column, took 14e-3s with Pandas, and 70.3e-6s with Polars. Thus, Polars ran 15x faster than Pandas
+- Filtering data, based on characteristics of each cell, took 0.486s with Pandas, and 0.525s with Polars. Thus, Polars was actually slightly slower
+- Creating new columns (e.g. as an alias) took 0.017s with Pandas and 0.034s with Polars. Thus, Polars was 2x slower than Pandas
+- Grouping and aggregation took 0.082s with Pandas, and 0.042s with Polars. Thus, Polars was 2x faster than Pandas
+- Monigatti found that certain functions in Polars are actually faster when done in Pandas syntax, as compared to the syntax recommended by the documentation.
+  For instance, she found that selecting columns from a 1GB file took 9e-6s when done in Pandas syntax, but 70e-6s when done in the syntax
+  recommended by documentation. (Specifically, using df[['col1', 'col2']] (Pandas syntax) as opposed to .select() (Polars syntax) )
+
+
+MECHANICS
+- Polars is a lot faster than Pandas, because it is built on Rust, a single language. By comparison, pandas is built on several programming languages,
+  mostly C, Cython, and python.
+
+- Polars has an eager and lazy API. Pandas only has an eager API.
+- An eager API means code is run directly, and results are returned immediately. However, this is slower, because unnecessary code may be run.
+- A lazy API means execution is not run until the results are needed. This is faster, because it avoids running unnecessary code
+- The lazy API is similar to Spark, where a plan is formed upon execution of a query. However, the plan does not actually see the data until
+  it is executed in parallel across all the cores of the CPU when we call the 'collect' method
+
+- Polars uses all cores of the CPU, allowing for parallelization, or running multiple processes simultaneously, which is very fast.
+- Pandas uses just one core of the CPU, so no parallelization. There are a bunch of tools built on top of Pandas (e.g. Dask) that run on top of Pandas
+  to parallelize. The drawback, however, is increased complexity, since we'd be using multiple software packages in tandem.
+
+- Polars uses Apache Arrow as its memory model. This is used to carry out data structure specification, metadata serialization, and protocols
+  for serialization and generic data transport. Arrow is very fast
+- Arrow allows Polars to support a streaming mode for working with larger-than-RAM files
+
+- Polars itself is written in Rust, making the library very memory-efficient despite using multiple CPUs
+
+- Polars is working on a command-line interface
+
+SYNTAX (brief)
+- Declaring a dataframe is very similar between Polars and Pandas
+- Operations within dataframes are more complex with Polars, and more often require multiple nested phrases
+- Polars offers better conditionals operations, with a 'when', 'then', 'otherwise' format that can be done to label elements of a dataframe cleanly.
+  The equivalent operation in Pandas would require multiple lines of code, which can get confusing.
+
+
+REFACTORING LEVEL OF EFFORT
+- Polars has a Python package, which makes it a potential alternative to Pandas
+- Some libraries expect a pandas dataframe or a numpy array. Therefore, we would have to load and transform data with polars, then convert to pandas when needed.
+  To give an example, sklearn expects a pandas dataframe and will not take a polars dataframe, necessitating a conversion.
+- Polars share some, but not all, syntax with Pandas
+- Polars lacks some of the 'group by' functions of Pandas, and we may have to reconstruct these, or create workarounds, ad hoc
+- Polars syntax is sometimes shared with Pandas syntax, but not always. In these cases, we would have to learn the new Polars syntax to refactor
+- Polars code is usually a bit longer than Pandas code for the same operation
+- Polars does not have the same full range of functionality as Pandas for things like data exploration
+- Pandas allows for working in relational long data format and ndarray style wide format. It also contains easy-to-use 'pivot' functions that allow for easy
+  conversion between the two. It is possible to convert between wide and long formats in Polars, but this necessitates using multiple functions that do not have
+  direct equivalents in Pandas.
+- Installing Polars is very easy (pip install polars)
+
+
+POTENTIAL DRAWBACKS OF USING POLARS vs. PANDAS
+- Most people already know Pandas very well, but Polars is a new and unfamiliar library; open-source users may feel more comfortable with Pandas
+- Pandas is potentially more reliable - has been around since 2008, as compared to Polars which was released in March 2021
+- For those working in the cloud, particularly with Google Cloud Functions, there may be less cores available than on one's laptop. Therefore, the advantages
+  of Polars may be comparatively limited when working in the cloud.
+
+
+API CALL COMPARISON vs. PANDAS
+- To be finished later
+
+
+PLAN OF ACTION
+- To be finished later.
+- For now, it seems like switching dataframe operations from Pandas to Polars is a good idea that will take a lot of work.
