@@ -74,3 +74,16 @@ redirect_link = (
 )
 index_file.write(redirect_link)
 index_file.close()
+
+"""
+update the profiler_options.html file to redirect to
+ the most current version of documentation
+"""
+index_file = open("../profiler_options.html", "w")
+redirect_link = (
+    '<meta http-equiv="refresh" content="0; url=./docs/'
+    + version
+    + '/html/profiler.html#profile-options" />'
+)
+index_file.write(redirect_link)
+index_file.close()
